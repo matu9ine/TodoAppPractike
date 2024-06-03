@@ -1,0 +1,51 @@
+.todo-list li .icon {
+    bottom: -3px;
+    width: 30px;
+    height: 40px;
+    font-size: 34px;
+    color: #cc9a9a;
+    margin: auto 0 11px;
+    position: absolute;
+    top: 0;
+    transition: color 0.2s ease-out;
+    cursor: pointer;
+}
+
+.todo-list li .icon:hover {
+    color: #af5b5e;
+}
+
+.todo-list li .icon-destroy {
+    right: 10px;
+    /*vertical-align: middle;*/
+    /*display: inline-block;*/
+    /*font-size: inherit; !* Установка размера шрифта равным размеру родительского элемента *!*/
+    /*line-height: 1; !* Установка высоты строки равной 1, чтобы уменьшить вертикальный отступ *!*/
+    /*padding: 0;*/
+    /*width: 20px; !* Задание ширины иконки *!*/
+    /*height: 20px; !* Задание высоты иконки *!*/
+}
+
+.todo-list li .icon-destroy:before {
+    /*content: '✖';*/
+    font-size: 25px;
+}
+
+.todo-list li .icon-edit {
+    font-size: 19px;
+    right: 45px;
+}
+
+.todo-list li .icon-edit:before {
+    content: '✎';
+}
+
+.todo-list li .edit {
+    margin: 0 0 0 55px;
+    padding: 12px 16px;
+    width: calc(100% - 55px);
+}
+
+.todo-list li.editing:last-child {
+    margin-bottom: -1px;
+}
