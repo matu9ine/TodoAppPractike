@@ -12,22 +12,30 @@ export class App extends Component {
     this.state = {
       filter: 'all',
       todoData: [
-        this.createTodoItem('Drink Coffee'),
-        this.createTodoItem('Drink Juice'),
-        this.createTodoItem('Drink Tea'),
+        this.createTodoItem('Drink Coffee', 10, 20),
+        this.createTodoItem('Drink Juice', 10, 20),
+        this.createTodoItem('Drink Tea', 10, 20),
       ],
     }
   }
 
-  createTodoItem = (description) => {
+  createTodoItem = (description, minNumber, secNumber) => {
     const createdTime = new Date()
+    const timeSpent = minNumber * 60 + secNumber
     return {
       id: this.maxId++,
       status: '',
       description,
+      minNumber: Math.floor(timeSpent / 60),
+      secNumber: timeSpent % 60,
       created: createdTime,
       isEditing: false,
       completed: false,
+      isTimerRunning: false,
+      timerStart: 0,
+      elapsedTime: 0,
+      timerId: null,
+      timeSpent,
     }
   }
 
@@ -46,6 +54,81 @@ export class App extends Component {
         todoData: this.toggleProperty(todoData, id, 'isEditing'),
       }
     })
+  }
+
+  onPlay = (id) => {
+    this.setState(({ todoData }) => ({
+      todoData: todoData.map((task) => {
+        if (task.id === id && !task.isTimerRunning) {
+          const now = Date.now()
+          const timerId = setInterval(() => {
+            this.updateTime(id)
+          }, 1000)
+
+          return {
+            ...task,
+            isTimerRunning: true,
+            timerStart: now,
+            timerId,
+          }
+        }
+        return task
+      }),
+    }))
+  }
+
+  onPause = (id) => {
+    this.setState(({ todoData }) => ({
+      todoData: todoData.map((task) => {
+        if (task.id === id && task.isTimerRunning) {
+          const elapsedTimeInSeconds = Math.floor((Date.now() - task.timerStart) / 1000)
+          const timeSpent = task.timeSpent - elapsedTimeInSeconds
+
+          clearInterval(task.timerId)
+
+          return {
+            ...task,
+            isTimerRunning: false,
+            timerId: null,
+            timeSpent,
+            minNumber: Math.floor(timeSpent / 60),
+            secNumber: timeSpent % 60,
+          }
+        }
+        return task
+      }),
+    }))
+  }
+
+  updateTime = (id) => {
+    this.setState(({ todoData }) => ({
+      todoData: todoData.map((task) => {
+        if (task.id === id && task.isTimerRunning) {
+          const elapsedTimeInSeconds = task.timeSpent - Math.floor((Date.now() - task.timerStart) / 1000) // Добавляем к прошедшему времени уже учтенное время
+          const newMinNumber = Math.floor(elapsedTimeInSeconds / 60)
+          const newSecNumber = elapsedTimeInSeconds % 60
+          if (newMinNumber <= 0 && newSecNumber <= 0) {
+            clearInterval(task.timerId)
+            return {
+              ...task,
+              isTimerRunning: false,
+              timerId: null,
+              completed: true, // Отметим задачу выполненной, если время истекло
+              timeSpent: 0, // Сбрасываем время
+              minNumber: 0, // Сбрасываем минуты
+              secNumber: 0, // Сбрасываем секунды
+            }
+          }
+          return {
+            ...task,
+            elapsedTime: elapsedTimeInSeconds,
+            minNumber: newMinNumber,
+            secNumber: newSecNumber,
+          }
+        }
+        return task
+      }),
+    }))
   }
 
   editedItem = (id, newDescription) => {
@@ -72,9 +155,9 @@ export class App extends Component {
     })
   }
 
-  addItem = (text) => {
+  addItem = (text, minNumber, secNumber) => {
     this.setState(({ todoData }) => {
-      const newItem = this.createTodoItem(text)
+      const newItem = this.createTodoItem(text, minNumber, secNumber)
       const updatedTodoData = [...todoData, newItem]
       return {
         todoData: updatedTodoData,
@@ -85,7 +168,25 @@ export class App extends Component {
   onToggleDone = (id) => {
     this.setState(({ todoData }) => {
       return {
-        todoData: this.toggleProperty(todoData, id, 'completed'),
+        todoData: todoData.map((task) => {
+          if (task.id === id) {
+            let updatedTask = { ...task, completed: !task.completed }
+            if (task.isTimerRunning) {
+              clearInterval(task.timerId)
+              const elapsedTimeInSeconds = task.timeSpent - Math.floor((Date.now() - task.timerStart) / 1000)
+              updatedTask = {
+                ...updatedTask,
+                isTimerRunning: false,
+                timerId: null,
+                timeSpent: elapsedTimeInSeconds,
+                minNumber: Math.floor(elapsedTimeInSeconds / 60),
+                secNumber: elapsedTimeInSeconds % 60,
+              }
+            }
+            return updatedTask
+          }
+          return task
+        }),
       }
     })
   }
@@ -129,6 +230,8 @@ export class App extends Component {
         <section className="main">
           <TaskList
             todos={data}
+            onPlay={this.onPlay}
+            onPause={this.onPause}
             onDeleted={this.deleteItem}
             onEditing={this.onEditItem}
             onItemEdited={this.editedItem}
