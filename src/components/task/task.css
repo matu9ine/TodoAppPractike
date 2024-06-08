@@ -1,12 +1,10 @@
 .todo-list li .icon {
-    bottom: -3px;
     width: 30px;
     height: 40px;
     font-size: 34px;
     color: #cc9a9a;
-    margin: auto 0 11px;
-    position: absolute;
-    top: 0;
+    /*margin: auto 0 11px;*/
+    margin: auto 0;
     transition: color 0.2s ease-out;
     cursor: pointer;
 }
@@ -16,6 +14,9 @@
 }
 
 .todo-list li .icon-destroy {
+    position: absolute;
+    top: 0;
+    bottom: -3px;
     right: 10px;
     /*vertical-align: middle;*/
     /*display: inline-block;*/
@@ -32,6 +33,9 @@
 }
 
 .todo-list li .icon-edit {
+    position: absolute;
+    top: 0;
+    bottom: -3px;
     font-size: 19px;
     right: 45px;
 }
@@ -49,3 +53,27 @@
 .todo-list li.editing:last-child {
     margin-bottom: -1px;
 }
+
+.todo-list li .icon-pause,
+.todo-list li .icon-play {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.todo-list li .icon-play {
+    font-size: 15px;
+}
+
+.todo-list li .icon-pause {
+    margin-right: 5px;
+}
+
+.icon-pause:after {
+    content: '⏸';
+}
+
+.icon-play:after {
+    content: '▶';
+}
+

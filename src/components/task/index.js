@@ -12,11 +12,15 @@ export class Task extends Component {
 
   static propTypes = exactPropTypes({
     description: PropTypes.string,
+    minNumber: PropTypes.number,
+    secNumber: PropTypes.number,
     created: PropTypes.object,
     id: PropTypes.number,
     status: PropTypes.string,
     completed: PropTypes.bool,
     isEditing: PropTypes.bool,
+    onPlay: PropTypes.func,
+    onPause: PropTypes.func,
     onDeleted: PropTypes.func,
     onEditing: PropTypes.func,
     onItemEdited: PropTypes.func,
@@ -64,7 +68,20 @@ export class Task extends Component {
   }
 
   render() {
-    const { description, status, id, onDeleted, onEditing, onToggleDone, completed, isEditing } = this.props
+    const {
+      description,
+      minNumber,
+      secNumber,
+      status,
+      id,
+      onPlay,
+      onPause,
+      onDeleted,
+      onEditing,
+      onToggleDone,
+      completed,
+      isEditing,
+    } = this.props
     const classNames = completed ? 'completed' : `${status}`
     const { label, time } = this.state
     return (
@@ -75,11 +92,24 @@ export class Task extends Component {
           </form>
         ) : (
           <div className="view">
-            <input id={id} className="toggle" type="checkbox" onClick={onToggleDone} defaultChecked={completed} />
+            <input
+              id={id}
+              className="toggle"
+              type="checkbox"
+              // onClick={onToggleDone}
+              onChange={onToggleDone}
+              // defaultChecked={completed}
+              checked={completed}
+            />
             <label>
               {/* htmlFor={id} */}
-              <span className="description">{description}</span>
-              <span className="created">created {time}</span>
+              <span className="title">{description}</span>
+              <span className="description">
+                <button className="icon icon-play" type="button" onClick={onPlay} />
+                <button className="icon icon-pause" type="button" onClick={onPause} />
+                {`${minNumber}:${secNumber.toString().padStart(2, '0')}`}
+              </span>
+              <span className="description">created {time}</span>
             </label>
             <button className="icon icon-edit" type="button" onClick={onEditing} />
             <button className="icon icon-destroy bi bi-x" type="button" onClick={onDeleted} />
