@@ -43,6 +43,7 @@ export class Task extends Component {
 
   componentWillUnmount() {
     clearInterval(this.intervalId)
+    this.intervalId = null
   }
 
   updateTime = () => {
